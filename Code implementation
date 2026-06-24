@@ -1,0 +1,1717 @@
+git pull
+git add .
+git commit -m "创建代码实现"
+git push
+YPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>校园食堂智能推荐与拥挤度引导系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+            display: none;
+        }
+
+        .container.active {
+            display: block;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .header p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        .user-info {
+            float: right;
+            font-size: 14px;
+            opacity: 0.9;
+            margin-top: -20px;
+        }
+
+        .user-info span {
+            margin-left: 10px;
+        }
+
+        .user-info button {
+            background: rgba(255,255,255,0.2);
+            border: 1px solid white;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .user-info button:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .nav {
+            display: flex;
+            justify-content: center;
+            background: #f8f9fa;
+            border-bottom: 2px solid #eee;
+            padding: 15px 0;
+        }
+
+        .nav-item {
+            padding: 10px 20px;
+            margin: 0 10px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .nav-item.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .nav-item:hover:not(.active) {
+            background: #e9ecef;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .section h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 24px;
+            text-align: center;
+        }
+
+        .canteen-status {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .canteen-card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .canteen-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+
+        .canteen-card h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .crowd-level {
+            margin: 15px 0;
+        }
+
+        .crowd-bar {
+            height: 10px;
+            background: #e9ecef;
+            border-radius: 5px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .crowd-fill {
+            height: 100%;
+            border-radius: 5px;
+            transition: width 0.5s ease;
+        }
+
+        .crowd-fill.low {
+            background: #4CAF50;
+        }
+
+        .crowd-fill.medium {
+            background: #ff9800;
+        }
+
+        .crowd-fill.high {
+            background: #f44336;
+        }
+
+        .crowd-text {
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .crowd-text.low {
+            color: #4CAF50;
+        }
+
+        .crowd-text.medium {
+            color: #ff9800;
+        }
+
+        .crowd-text.high {
+            color: #f44336;
+        }
+
+        .wait-time {
+            margin-top: 15px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .recommendation-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+        }
+
+        .recommendation-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .preference-filter {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            border: 2px solid #667eea;
+            border-radius: 20px;
+            background: white;
+            color: #667eea;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .filter-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .food-recommendations {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .food-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .food-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+
+        .food-image {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+        }
+
+        .food-info {
+            padding: 15px;
+        }
+
+        .food-info h3 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .food-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+
+        .food-tag {
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 12px;
+        }
+
+        .food-description {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 10px;
+            line-height: 1.4;
+        }
+
+        .food-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+        }
+
+        .food-price {
+            font-weight: bold;
+            color: #ff6b6b;
+            font-size: 16px;
+        }
+
+        .food-rating {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .rating-stars {
+            color: #ffd93d;
+        }
+
+        .rating-count {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .map-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+        }
+
+        .map-container {
+            position: relative;
+            height: 400px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .map-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .map-markers {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .map-marker {
+            position: absolute;
+            transform: translate(-50%, -50%);
+            cursor: pointer;
+        }
+
+        .marker-icon {
+            width: 40px;
+            height: 40px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            font-size: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .marker-icon:hover {
+            transform: scale(1.2);
+        }
+
+        .marker-icon.low {
+            border: 3px solid #4CAF50;
+        }
+
+        .marker-icon.medium {
+            border: 3px solid #ff9800;
+        }
+
+        .marker-icon.high {
+            border: 3px solid #f44336;
+        }
+
+        .marker-icon.dorm {
+            border: 3px solid #667eea;
+            font-size: 16px;
+        }
+
+        .marker-tooltip {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            white-space: nowrap;
+            margin-bottom: 5px;
+            font-size: 14px;
+            font-weight: bold;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .map-marker:hover .marker-tooltip {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .analytics-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+        }
+
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .analytic-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .analytic-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .analytic-label {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .footer {
+            background: #333;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .footer p {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+
+        .auth-container {
+            max-width: 450px;
+            margin: 100px auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 40px;
+            display: none;
+        }
+
+        .auth-container.active {
+            display: block;
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .auth-header h2 {
+            font-size: 28px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .auth-header p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #eee;
+            border-radius: 10px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-group input.error {
+            border-color: #f44336;
+        }
+
+        .error-message {
+            color: #f44336;
+            font-size: 12px;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102,126,234,0.4);
+        }
+
+        .auth-switch {
+            text-align: center;
+            margin-top: 20px;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .auth-switch a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .auth-switch a:hover {
+            text-decoration: underline;
+        }
+
+        .preference-container {
+            max-width: 600px;
+            margin: 50px auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 40px;
+            display: none;
+        }
+
+        .preference-container.active {
+            display: block;
+        }
+
+        .preference-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .preference-header h2 {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .preference-header p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .preference-section {
+            margin-bottom: 30px;
+        }
+
+        .preference-section h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .option-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 12px;
+        }
+
+        .option-item {
+            padding: 15px;
+            border: 2px solid #eee;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .option-item:hover {
+            border-color: #667eea;
+            background: #f5f3ff;
+        }
+
+        .option-item.selected {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .option-item.selected .option-icon {
+            color: white;
+        }
+
+        .option-icon {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .option-label {
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .multi-select .option-item.selected {
+            border-color: #667eea;
+            background: #e8eaf6;
+            color: #1a237e;
+        }
+
+        .multi-select .option-item.selected .option-icon {
+            color: #667eea;
+        }
+
+        .profile-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+        }
+
+        .profile-card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #eee;
+        }
+
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            color: white;
+        }
+
+        .profile-info h3 {
+            font-size: 20px;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .profile-info p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .profile-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .detail-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        .detail-label {
+            font-size: 12px;
+            color: #999;
+            margin-bottom: 5px;
+        }
+
+        .detail-value {
+            font-size: 16px;
+            color: #333;
+            font-weight: bold;
+        }
+
+        .profile-preferences {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .profile-preferences h3 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 18px;
+        }
+
+        .preference-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .preference-tag {
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            color: #2e7d32;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .preference-tag.category {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            color: #1565c0;
+        }
+
+        .edit-btn {
+            background: #667eea;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .edit-btn:hover {
+            background: #5a6fd6;
+            transform: translateY(-2px);
+        }
+
+        .quick-nav {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .quick-nav-item {
+            flex: 1;
+            min-width: 140px;
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .quick-nav-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
+
+        .quick-nav-item .icon {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .quick-nav-item .label {
+            font-size: 14px;
+            color: #333;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 0;
+                border-radius: 0;
+            }
+
+            .header {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 24px;
+            }
+
+            .user-info {
+                float: none;
+                margin-top: 10px;
+                text-align: center;
+            }
+
+            .content {
+                padding: 20px;
+            }
+
+            .nav {
+                flex-wrap: wrap;
+                gap: 5px;
+            }
+
+            .nav-item {
+                margin: 5px;
+                padding: 8px 16px;
+                font-size: 14px;
+            }
+
+            .canteen-status {
+                grid-template-columns: 1fr;
+            }
+
+            .food-recommendations {
+                grid-template-columns: 1fr;
+            }
+
+            .recommendation-header {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .profile-header {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="login-container" class="auth-container active">
+        <div class="auth-header">
+            <h2>🎓 校园食堂智能推荐系统</h2>
+            <p>欢迎登录，请使用学号和手机号登录</p>
+        </div>
+        <div class="form-group">
+            <label for="login-student-id">学号</label>
+            <input type="text" id="login-student-id" placeholder="请输入学号">
+            <div class="error-message" id="login-student-id-error">请输入正确的学号格式</div>
+        </div>
+        <div class="form-group">
+            <label for="login-phone">手机号</label>
+            <input type="text" id="login-phone" placeholder="请输入手机号">
+            <div class="error-message" id="login-phone-error">请输入正确的手机号格式</div>
+        </div>
+        <button class="btn btn-primary" onclick="handleLogin()">登录</button>
+        <div class="auth-switch">
+            还没有账号？<a href="#" onclick="showRegister()">立即注册</a>
+        </div>
+    </div>
+
+    <div id="register-container" class="auth-container">
+        <div class="auth-header">
+            <h2>🎓 用户注册</h2>
+            <p>请填写个人信息完成注册</p>
+        </div>
+        <div class="form-group">
+            <label for="register-student-id">学号</label>
+            <input type="text" id="register-student-id" placeholder="请输入学号">
+            <div class="error-message" id="register-student-id-error">请输入正确的学号格式</div>
+        </div>
+        <div class="form-group">
+            <label for="register-phone">手机号</label>
+            <input type="text" id="register-phone" placeholder="请输入手机号">
+            <div class="error-message" id="register-phone-error">请输入正确的手机号格式</div>
+        </div>
+        <div class="form-group">
+            <label for="register-name">姓名</label>
+            <input type="text" id="register-name" placeholder="请输入姓名">
+            <div class="error-message" id="register-name-error">请输入姓名</div>
+        </div>
+        <button class="btn btn-primary" onclick="handleRegister()">注册</button>
+        <div class="auth-switch">
+            已有账号？<a href="#" onclick="showLogin()">立即登录</a>
+        </div>
+    </div>
+
+    <div id="preference-container" class="preference-container">
+        <div class="preference-header">
+            <h2>🎯 设置您的偏好</h2>
+            <p>为了给您提供更精准的推荐，请完成以下偏好设置</p>
+        </div>
+        
+        <div class="preference-section">
+            <h3>🏠 选择所在宿舍区</h3>
+            <div class="option-grid" id="dorm-options">
+                <div class="option-item" data-value="东苑">
+                    <div class="option-icon">🌅</div>
+                    <div class="option-label">东苑</div>
+                </div>
+                <div class="option-item" data-value="西苑">
+                    <div class="option-icon">🌆</div>
+                    <div class="option-label">西苑</div>
+                </div>
+                <div class="option-item" data-value="南苑">
+                    <div class="option-icon">🌸</div>
+                    <div class="option-label">南苑</div>
+                </div>
+                <div class="option-item" data-value="北苑">
+                    <div class="option-icon">❄️</div>
+                    <div class="option-label">北苑</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="preference-section">
+            <h3>📍 来自哪个地方</h3>
+            <div class="option-grid" id="origin-options">
+                <div class="option-item" data-value="华北">
+                    <div class="option-icon">🗻</div>
+                    <div class="option-label">华北</div>
+                </div>
+                <div class="option-item" data-value="华东">
+                    <div class="option-icon">🏙️</div>
+                    <div class="option-label">华东</div>
+                </div>
+                <div class="option-item" data-value="华南">
+                    <div class="option-icon">🌴</div>
+                    <div class="option-label">华南</div>
+                </div>
+                <div class="option-item" data-value="华中">
+                    <div class="option-icon">🏞️</div>
+                    <div class="option-label">华中</div>
+                </div>
+                <div class="option-item" data-value="西南">
+                    <div class="option-icon">⛰️</div>
+                    <div class="option-label">西南</div>
+                </div>
+                <div class="option-item" data-value="西北">
+                    <div class="option-icon">🏜️</div>
+                    <div class="option-label">西北</div>
+                </div>
+                <div class="option-item" data-value="东北">
+                    <div class="option-icon">❄️</div>
+                    <div class="option-label">东北</div>
+                </div>
+                <div class="option-item" data-value="港澳台">
+                    <div class="option-icon">🌊</div>
+                    <div class="option-label">港澳台</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="preference-section">
+            <h3>🌶️ 喜爱的口味（可多选）</h3>
+            <div class="option-grid multi-select" id="taste-options">
+                <div class="option-item" data-value="清淡">
+                    <div class="option-icon">🥬</div>
+                    <div class="option-label">清淡</div>
+                </div>
+                <div class="option-item" data-value="微辣">
+                    <div class="option-icon">🌶️</div>
+                    <div class="option-label">微辣</div>
+                </div>
+                <div class="option-item" data-value="中辣">
+                    <div class="option-icon">🔥</div>
+                    <div class="option-label">中辣</div>
+                </div>
+                <div class="option-item" data-value="特辣">
+                    <div class="option-icon">💥</div>
+                    <div class="option-label">特辣</div>
+                </div>
+                <div class="option-item" data-value="酸甜">
+                    <div class="option-icon">🍬</div>
+                    <div class="option-label">酸甜</div>
+                </div>
+                <div class="option-item" data-value="咸鲜">
+                    <div class="option-icon">🥩</div>
+                    <div class="option-label">咸鲜</div>
+                </div>
+                <div class="option-item" data-value="酱香">
+                    <div class="option-icon">🍯</div>
+                    <div class="option-label">酱香</div>
+                </div>
+                <div class="option-item" data-value="麻辣">
+                    <div class="option-icon">🌶️🔥</div>
+                    <div class="option-label">麻辣</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="preference-section">
+            <h3>🍽️ 喜欢的菜品类型（可多选）</h3>
+            <div class="option-grid multi-select" id="food-type-options">
+                <div class="option-item" data-value="川菜">
+                    <div class="option-icon">🌶️</div>
+                    <div class="option-label">川菜</div>
+                </div>
+                <div class="option-item" data-value="粤菜">
+                    <div class="option-icon">🍤</div>
+                    <div class="option-label">粤菜</div>
+                </div>
+                <div class="option-item" data-value="湘菜">
+                    <div class="option-icon">🌶️🥘</div>
+                    <div class="option-label">湘菜</div>
+                </div>
+                <div class="option-item" data-value="鲁菜">
+                    <div class="option-icon">🥘</div>
+                    <div class="option-label">鲁菜</div>
+                </div>
+                <div class="option-item" data-value="面食">
+                    <div class="option-icon">🍜</div>
+                    <div class="option-label">面食</div>
+                </div>
+                <div class="option-item" data-value="米饭">
+                    <div class="option-icon">🍚</div>
+                    <div class="option-label">米饭</div>
+                </div>
+                <div class="option-item" data-value="西餐">
+                    <div class="option-icon">🍔</div>
+                    <div class="option-label">西餐</div>
+                </div>
+                <div class="option-item" data-value="快餐">
+                    <div class="option-icon">🍱</div>
+                    <div class="option-label">快餐</div>
+                </div>
+                <div class="option-item" data-value="素食">
+                    <div class="option-icon">🥗</div>
+                    <div class="option-label">素食</div>
+                </div>
+                <div class="option-item" data-value="汤粥">
+                    <div class="option-icon">🥣</div>
+                    <div class="option-label">汤粥</div>
+                </div>
+                <div class="option-item" data-value="烧烤">
+                    <div class="option-icon">🍢</div>
+                    <div class="option-label">烧烤</div>
+                </div>
+                <div class="option-item" data-value="火锅">
+                    <div class="option-icon">🍲</div>
+                    <div class="option-label">火锅</div>
+                </div>
+            </div>
+        </div>
+
+        <button class="btn btn-primary" onclick="savePreferences()">完成设置</button>
+    </div>
+
+    <div id="main-container" class="container">
+        <div class="header">
+            <h1>🎓 校园食堂智能推荐与拥挤度引导系统</h1>
+            <p>智能推荐美食，实时监控拥挤度，让校园用餐更便捷</p>
+            <div class="user-info">
+                <span id="user-name-display">欢迎, 用户</span>
+                <button onclick="logout()">退出登录</button>
+            </div>
+        </div>
+
+        <div class="nav">
+            <div class="nav-item active" onclick="switchTab('home')">首页</div>
+            <div class="nav-item" onclick="switchTab('recommend')">推荐菜单</div>
+            <div class="nav-item" onclick="switchTab('map')">拥挤度地图</div>
+            <div class="nav-item" onclick="switchTab('profile')">个人中心</div>
+        </div>
+
+        <div class="content">
+            <div id="home-section" class="section">
+                <h2>🏢 食堂拥挤度实时状态</h2>
+                <div class="canteen-status" id="canteen-status-container"></div>
+            </div>
+
+            <div id="recommend-section" class="section recommendation-section" style="display: none;">
+                <div class="recommendation-header">
+                    <h2>🍽️ 智能美食推荐</h2>
+                    <div class="preference-filter">
+                        <div class="filter-btn active" onclick="filterFood('all')">全部</div>
+                        <div class="filter-btn" onclick="filterFood('川菜')">川菜</div>
+                        <div class="filter-btn" onclick="filterFood('粤菜')">粤菜</div>
+                        <div class="filter-btn" onclick="filterFood('面食')">面食</div>
+                        <div class="filter-btn" onclick="filterFood('西餐')">西餐</div>
+                        <div class="filter-btn" onclick="filterFood('素食')">素食</div>
+                    </div>
+                </div>
+                <div class="food-recommendations" id="food-recommendations-container"></div>
+            </div>
+
+            <div id="map-section" class="section map-section" style="display: none;">
+                <h2>🗺️ 校园食堂分布地图</h2>
+                <div class="map-container">
+                    <img src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=campus%20map%20with%20canteens%20and%20dormitory%20areas%20layout&image_size=landscape_16_9" alt="校园地图" class="map-image">
+                    <div class="map-markers" id="map-markers-container"></div>
+                </div>
+            </div>
+
+            <div id="profile-section" class="section" style="display: none;">
+                <div class="profile-section">
+                    <div class="profile-card">
+                        <div class="profile-header">
+                            <div class="profile-avatar" id="profile-avatar">👤</div>
+                            <div class="profile-info">
+                                <h3 id="profile-name">用户姓名</h3>
+                                <p id="profile-student-id">学号：--</p>
+                            </div>
+                        </div>
+                        <div class="profile-details">
+                            <div class="detail-item">
+                                <div class="detail-label">所在宿舍区</div>
+                                <div class="detail-value" id="profile-dorm">--</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">来自</div>
+                                <div class="detail-value" id="profile-origin">--</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">注册时间</div>
+                                <div class="detail-value" id="profile-register-time">--</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">累计用餐次数</div>
+                                <div class="detail-value" id="profile-meal-count">0</div>
+                            </div>
+                        </div>
+                        <button class="edit-btn" style="margin-top: 20px;" onclick="editPreferences()">修改偏好设置</button>
+                    </div>
+
+                    <div class="profile-preferences">
+                        <h3>🎯 我的口味偏好</h3>
+                        <div class="preference-tags" id="profile-tastes"></div>
+                    </div>
+
+                    <div class="profile-preferences" style="margin-top: 20px;">
+                        <h3>🍽️ 喜欢的菜品类型</h3>
+                        <div class="preference-tags" id="profile-food-types"></div>
+                    </div>
+
+                    <div class="quick-nav">
+                        <div class="quick-nav-item" onclick="switchTab('home')">
+                            <div class="icon">🏢</div>
+                            <div class="label">查看拥挤度</div>
+                        </div>
+                        <div class="quick-nav-item" onclick="switchTab('recommend')">
+                            <div class="icon">🍽️</div>
+                            <div class="label">美食推荐</div>
+                        </div>
+                        <div class="quick-nav-item" onclick="switchTab('map')">
+                            <div class="icon">🗺️</div>
+                            <div class="label">食堂地图</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="analytics-section" class="section analytics-section" style="display: none;">
+                <h2>📊 用餐数据分析</h2>
+                <div class="analytics-grid">
+                    <div class="analytic-card">
+                        <div class="analytic-value">1,248</div>
+                        <div class="analytic-label">今日用餐人数</div>
+                    </div>
+                    <div class="analytic-card">
+                        <div class="analytic-value">¥18,560</div>
+                        <div class="analytic-label">今日营业额</div>
+                    </div>
+                    <div class="analytic-card">
+                        <div class="analytic-value">4.8</div>
+                        <div class="analytic-label">平均满意度</div>
+                    </div>
+                    <div class="analytic-card">
+                        <div class="analytic-value">12分钟</div>
+                        <div class="analytic-label">平均等待时间</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>© 2026 校园食堂智能推荐与拥挤度引导系统 | 为师生提供更便捷的用餐体验</p>
+        </div>
+    </div>
+
+    <script>
+        const canteens = [
+            { id: 1, name: '东苑食堂', crowd: 35, position: { top: '30%', left: '25%' } },
+            { id: 2, name: '西苑食堂', crowd: 60, position: { top: '35%', left: '70%' } },
+            { id: 3, name: '南苑食堂', crowd: 80, position: { top: '70%', left: '45%' } },
+            { id: 4, name: '北苑食堂', crowd: 25, position: { top: '20%', left: '50%' } }
+        ];
+
+        const dormitories = [
+            { name: '东苑', position: { top: '50%', left: '20%' } },
+            { name: '西苑', position: { top: '55%', left: '75%' } },
+            { name: '南苑', position: { top: '85%', left: '50%' } },
+            { name: '北苑', position: { top: '15%', left: '45%' } }
+        ];
+
+        const foods = [
+            { id: 1, name: '麻辣香锅', price: 18, rating: 4.8, ratingCount: 256, canteen: '东苑食堂', type: '川菜', taste: ['麻辣', '特辣'], image: 'spicy%20chinese%20mala%20xiang%20guo%20with%20vegetables%20and%20meat' },
+            { id: 2, name: '清蒸鲈鱼', price: 28, rating: 4.9, ratingCount: 189, canteen: '西苑食堂', type: '粤菜', taste: ['清淡', '咸鲜'], image: 'steamed%20sea%20bass%20chinese%20style%20with%20ginger%20and%20scallion' },
+            { id: 3, name: '红烧牛肉面', price: 15, rating: 4.7, ratingCount: 328, canteen: '南苑食堂', type: '面食', taste: ['酱香', '微辣'], image: 'delicious%20chinese%20noodles%20with%20braised%20beef' },
+            { id: 4, name: '宫保鸡丁', price: 16, rating: 4.8, ratingCount: 245, canteen: '北苑食堂', type: '川菜', taste: ['微辣', '酸甜'], image: 'kung%20pao%20chicken%20with%20peanuts%20chinese%20dish' },
+            { id: 5, name: '健康沙拉', price: 12, rating: 4.6, ratingCount: 156, canteen: '东苑食堂', type: '素食', taste: ['清淡'], image: 'healthy%20salad%20with%20fresh%20vegetables%20and%20dressing' },
+            { id: 6, name: '蛋炒饭', price: 8, rating: 4.5, ratingCount: 412, canteen: '西苑食堂', type: '米饭', taste: ['咸鲜'], image: 'chinese%20fried%20rice%20with%20egg%20and%20vegetables' },
+            { id: 7, name: '汉堡套餐', price: 20, rating: 4.4, ratingCount: 198, canteen: '南苑食堂', type: '西餐', taste: ['咸鲜'], image: 'delicious%20hamburger%20with%20beef%20patty%20and%20fries' },
+            { id: 8, name: '水煮肉片', price: 17, rating: 4.9, ratingCount: 287, canteen: '北苑食堂', type: '川菜', taste: ['麻辣', '特辣'], image: 'sichuan%20boiled%20sliced%20pork%20in%20chili%20oil' },
+            { id: 9, name: '肠粉', price: 10, rating: 4.7, ratingCount: 167, canteen: '东苑食堂', type: '粤菜', taste: ['清淡', '咸鲜'], image: 'cantonese%20cheung%20fun%20rice%20noodle%20rolls' },
+            { id: 10, name: '担担面', price: 13, rating: 4.8, ratingCount: 234, canteen: '西苑食堂', type: '面食', taste: ['麻辣', '微辣'], image: 'sichuan%20dandan%20noodles%20with%20minced%20pork' },
+            { id: 11, name: '黄焖鸡米饭', price: 14, rating: 4.6, ratingCount: 356, canteen: '南苑食堂', type: '米饭', taste: ['酱香', '微辣'], image: 'huangmen%20chicken%20rice%20chinese%20dish' },
+            { id: 12, name: '麻辣烫', price: 16, rating: 4.7, ratingCount: 278, canteen: '北苑食堂', type: '川菜', taste: ['麻辣', '微辣'], image: 'chinese%20spicy%20hot%20pot%20soup%20with%20vegetables%20and%20meat' },
+            { id: 13, name: '广式烧腊饭', price: 22, rating: 4.8, ratingCount: 145, canteen: '东苑食堂', type: '粤菜', taste: ['咸鲜', '酱香'], image: 'cantonese%20roast%20meat%20rice%20with%20duck%20and%20pork' },
+            { id: 14, name: '饺子', price: 12, rating: 4.5, ratingCount: 267, canteen: '西苑食堂', type: '面食', taste: ['咸鲜'], image: 'chinese%20dumplings%20jiaozi%20steamed%20or%20boiled' },
+            { id: 15, name: '石锅拌饭', price: 18, rating: 4.6, ratingCount: 178, canteen: '南苑食堂', type: '快餐', taste: ['微辣', '咸鲜'], image: 'korean%20bibimbap%20in%20stone%20bowl%20with%20vegetables' },
+            { id: 16, name: '皮蛋瘦肉粥', price: 8, rating: 4.4, ratingCount: 198, canteen: '北苑食堂', type: '汤粥', taste: ['清淡', '咸鲜'], image: 'chinese%20congee%20with%20century%20egg%20and%20minced%20pork' }
+        ];
+
+        let currentUser = null;
+        let selectedDorm = '';
+        let selectedOrigin = '';
+        let selectedTastes = [];
+        let selectedFoodTypes = [];
+
+        function showLogin() {
+            document.getElementById('register-container').classList.remove('active');
+            document.getElementById('login-container').classList.add('active');
+            document.getElementById('preference-container').classList.remove('active');
+            document.getElementById('main-container').classList.remove('active');
+        }
+
+        function showRegister() {
+            document.getElementById('login-container').classList.remove('active');
+            document.getElementById('register-container').classList.add('active');
+            document.getElementById('preference-container').classList.remove('active');
+            document.getElementById('main-container').classList.remove('active');
+        }
+
+        function showPreferences() {
+            document.getElementById('login-container').classList.remove('active');
+            document.getElementById('register-container').classList.remove('active');
+            document.getElementById('preference-container').classList.add('active');
+            document.getElementById('main-container').classList.remove('active');
+        }
+
+        function showMain() {
+            document.getElementById('login-container').classList.remove('active');
+            document.getElementById('register-container').classList.remove('active');
+            document.getElementById('preference-container').classList.remove('active');
+            document.getElementById('main-container').classList.add('active');
+            renderCanteens();
+            renderFoodRecommendations('all');
+            renderMap();
+            updateProfile();
+        }
+
+        function validateStudentId(id) {
+            const regex = /^\d{8,12}$/;
+            return regex.test(id);
+        }
+
+        function validatePhone(phone) {
+            const regex = /^1[3-9]\d{9}$/;
+            return regex.test(phone);
+        }
+
+        function validateName(name) {
+            return name && name.trim().length > 0;
+        }
+
+        function handleLogin() {
+            const studentId = document.getElementById('login-student-id').value;
+            const phone = document.getElementById('login-phone').value;
+
+            let isValid = true;
+
+            if (!validateStudentId(studentId)) {
+                document.getElementById('login-student-id').classList.add('error');
+                document.getElementById('login-student-id-error').classList.add('show');
+                isValid = false;
+            } else {
+                document.getElementById('login-student-id').classList.remove('error');
+                document.getElementById('login-student-id-error').classList.remove('show');
+            }
+
+            if (!validatePhone(phone)) {
+                document.getElementById('login-phone').classList.add('error');
+                document.getElementById('login-phone-error').classList.add('show');
+                isValid = false;
+            } else {
+                document.getElementById('login-phone').classList.remove('error');
+                document.getElementById('login-phone-error').classList.remove('show');
+            }
+
+            if (isValid) {
+                const storedUser = localStorage.getItem(`user_${studentId}_${phone}`);
+                if (storedUser) {
+                    currentUser = JSON.parse(storedUser);
+                    showMain();
+                } else {
+                    alert('账号不存在，请先注册');
+                }
+            }
+        }
+
+        function handleRegister() {
+            const studentId = document.getElementById('register-student-id').value;
+            const phone = document.getElementById('register-phone').value;
+            const name = document.getElementById('register-name').value;
+
+            let isValid = true;
+
+            if (!validateStudentId(studentId)) {
+                document.getElementById('register-student-id').classList.add('error');
+                document.getElementById('register-student-id-error').classList.add('show');
+                isValid = false;
+            } else {
+                document.getElementById('register-student-id').classList.remove('error');
+                document.getElementById('register-student-id-error').classList.remove('show');
+            }
+
+            if (!validatePhone(phone)) {
+                document.getElementById('register-phone').classList.add('error');
+                document.getElementById('register-phone-error').classList.add('show');
+                isValid = false;
+            } else {
+                document.getElementById('register-phone').classList.remove('error');
+                document.getElementById('register-phone-error').classList.remove('show');
+            }
+
+            if (!validateName(name)) {
+                document.getElementById('register-name').classList.add('error');
+                document.getElementById('register-name-error').classList.add('show');
+                isValid = false;
+            } else {
+                document.getElementById('register-name').classList.remove('error');
+                document.getElementById('register-name-error').classList.remove('show');
+            }
+
+            if (isValid) {
+                const existingUser = localStorage.getItem(`user_${studentId}_${phone}`);
+                if (existingUser) {
+                    alert('该账号已注册，请直接登录');
+                } else {
+                    currentUser = {
+                        studentId,
+                        phone,
+                        name,
+                        registerTime: new Date().toLocaleString()
+                    };
+                    showPreferences();
+                }
+            }
+        }
+
+        function setupOptionClick(containerId, isMultiSelect, callback) {
+            const container = document.getElementById(containerId);
+            const items = container.querySelectorAll('.option-item');
+            
+            items.forEach(item => {
+                item.addEventListener('click', function() {
+                    const value = this.dataset.value;
+                    
+                    if (isMultiSelect) {
+                        const index = selectedTastes.indexOf(value);
+                        if (index > -1) {
+                            selectedTastes.splice(index, 1);
+                            this.classList.remove('selected');
+                        } else {
+                            selectedTastes.push(value);
+                            this.classList.add('selected');
+                        }
+                    } else {
+                        items.forEach(i => i.classList.remove('selected'));
+                        this.classList.add('selected');
+                        callback(value);
+                    }
+                });
+            });
+        }
+
+        function setupFoodTypeClick() {
+            const container = document.getElementById('food-type-options');
+            const items = container.querySelectorAll('.option-item');
+            
+            items.forEach(item => {
+                item.addEventListener('click', function() {
+                    const value = this.dataset.value;
+                    const index = selectedFoodTypes.indexOf(value);
+                    if (index > -1) {
+                        selectedFoodTypes.splice(index, 1);
+                        this.classList.remove('selected');
+                    } else {
+                        selectedFoodTypes.push(value);
+                        this.classList.add('selected');
+                    }
+                });
+            });
+        }
+
+        setupOptionClick('dorm-options', false, (value) => { selectedDorm = value; });
+        setupOptionClick('origin-options', false, (value) => { selectedOrigin = value; });
+        setupOptionClick('taste-options', true);
+        setupFoodTypeClick();
+
+        function savePreferences() {
+            if (!selectedDorm) {
+                alert('请选择所在宿舍区');
+                return;
+            }
+            if (!selectedOrigin) {
+                alert('请选择来自哪个地方');
+                return;
+            }
+            if (selectedTastes.length === 0) {
+                alert('请选择至少一种喜爱的口味');
+                return;
+            }
+            if (selectedFoodTypes.length === 0) {
+                alert('请选择至少一种喜欢的菜品类型');
+                return;
+            }
+
+            currentUser.dorm = selectedDorm;
+            currentUser.origin = selectedOrigin;
+            currentUser.tastes = selectedTastes;
+            currentUser.foodTypes = selectedFoodTypes;
+            currentUser.mealCount = 0;
+
+            localStorage.setItem(`user_${currentUser.studentId}_${currentUser.phone}`, JSON.stringify(currentUser));
+            showMain();
+        }
+
+        function logout() {
+            currentUser = null;
+            selectedDorm = '';
+            selectedOrigin = '';
+            selectedTastes = [];
+            selectedFoodTypes = [];
+            showLogin();
+        }
+
+        function switchTab(tabName) {
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => item.classList.remove('active'));
+            event.target.classList.add('active');
+
+            document.getElementById('home-section').style.display = 'none';
+            document.getElementById('recommend-section').style.display = 'none';
+            document.getElementById('map-section').style.display = 'none';
+            document.getElementById('profile-section').style.display = 'none';
+            document.getElementById('analytics-section').style.display = 'none';
+
+            if (tabName === 'home') {
+                document.getElementById('home-section').style.display = 'block';
+                document.getElementById('analytics-section').style.display = 'block';
+            } else if (tabName === 'recommend') {
+                document.getElementById('recommend-section').style.display = 'block';
+            } else if (tabName === 'map') {
+                document.getElementById('map-section').style.display = 'block';
+            } else if (tabName === 'profile') {
+                document.getElementById('profile-section').style.display = 'block';
+            }
+        }
+
+        function getCrowdLevel(crowd) {
+            if (crowd < 40) return 'low';
+            if (crowd < 70) return 'medium';
+            return 'high';
+        }
+
+        function getCrowdText(crowd) {
+            const level = getCrowdLevel(crowd);
+            if (level === 'low') return `低拥挤度 (${crowd}%)`;
+            if (level === 'medium') return `中等拥挤度 (${crowd}%)`;
+            return `高拥挤度 (${crowd}%)`;
+        }
+
+        function getWaitTime(crowd) {
+            if (crowd < 40) return '5分钟';
+            if (crowd < 70) return '15分钟';
+            return '25分钟';
+        }
+
+        function renderCanteens() {
+            const container = document.getElementById('canteen-status-container');
+            container.innerHTML = '';
+
+            canteens.forEach(canteen => {
+                const level = getCrowdLevel(canteen.crowd);
+                const card = document.createElement('div');
+                card.className = 'canteen-card';
+                card.innerHTML = `
+                    <h3>${canteen.name}</h3>
+                    <div class="crowd-level">
+                        <div class="crowd-bar">
+                            <div class="crowd-fill ${level}" style="width: ${canteen.crowd}%"></div>
+                        </div>
+                        <div class="crowd-text ${level}">${getCrowdText(canteen.crowd)}</div>
+                    </div>
+                    <div class="wait-time">预计等待时间：${getWaitTime(canteen.crowd)}</div>
+                    <div class="wait-time">推荐指数：${getRatingStars(canteen.crowd)}</div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function getRatingStars(crowd) {
+            if (crowd < 40) return '⭐⭐⭐⭐⭐';
+            if (crowd < 70) return '⭐⭐⭐';
+            return '⭐⭐';
+        }
+
+        function filterFood(type) {
+            const filterBtns = document.querySelectorAll('.filter-btn');
+            filterBtns.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            renderFoodRecommendations(type);
+        }
+
+        function renderFoodRecommendations(filterType) {
+            const container = document.getElementById('food-recommendations-container');
+            container.innerHTML = '';
+
+            let filteredFoods = foods;
+            
+            if (filterType !== 'all') {
+                filteredFoods = foods.filter(f => f.type === filterType);
+            }
+
+            if (currentUser && currentUser.foodTypes && currentUser.foodTypes.length > 0 && filterType === 'all') {
+                filteredFoods = foods.filter(f => 
+                    currentUser.foodTypes.includes(f.type) || 
+                    currentUser.tastes.some(t => f.taste.includes(t))
+                );
+            }
+
+            filteredFoods.forEach(food => {
+                const card = document.createElement('div');
+                card.className = 'food-card';
+                const stars = '⭐'.repeat(Math.round(food.rating));
+                card.innerHTML = `
+                    <img src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=${food.image}&image_size=square" alt="${food.name}" class="food-image">
+                    <div class="food-info">
+                        <h3>${food.name}</h3>
+                        <div class="food-tags">
+                            <span class="food-tag">${food.type}</span>
+                            ${food.taste.map(t => `<span class="food-tag">${t}</span>`).join('')}
+                        </div>
+                        <div class="food-description">供应食堂：${food.canteen}</div>
+                        <div class="food-footer">
+                            <div class="food-price">¥${food.price.toFixed(2)}</div>
+                            <div class="food-rating">
+                                <span class="rating-stars">${stars}</span>
+                                <span class="rating-count">${food.ratingCount}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function renderMap() {
+            const container = document.getElementById('map-markers-container');
+            container.innerHTML = '';
+
+            canteens.forEach(canteen => {
+                const level = getCrowdLevel(canteen.crowd);
+                const marker = document.createElement('div');
+                marker.className = 'map-marker';
+                marker.style.top = canteen.position.top;
+                marker.style.left = canteen.position.left;
+                marker.innerHTML = `
+                    <div class="marker-icon ${level}">🍽️</div>
+                    <div class="marker-tooltip">${canteen.name} (${getCrowdText(canteen.crowd)})</div>
+                `;
+                container.appendChild(marker);
+            });
+
+            dormitories.forEach(dorm => {
+                const marker = document.createElement('div');
+                marker.className = 'map-marker';
+                marker.style.top = dorm.position.top;
+                marker.style.left = dorm.position.left;
+                marker.innerHTML = `
+                    <div class="marker-icon dorm">🏠</div>
+                    <div class="marker-tooltip">${dorm.name}宿舍区</div>
+                `;
+                container.appendChild(marker);
+            });
+        }
+
+        function updateProfile() {
+            if (!currentUser) return;
+
+            document.getElementById('user-name-display').textContent = `欢迎, ${currentUser.name}`;
+            document.getElementById('profile-name').textContent = currentUser.name;
+            document.getElementById('profile-student-id').textContent = `学号：${currentUser.studentId}`;
+            document.getElementById('profile-dorm').textContent = currentUser.dorm || '--';
+            document.getElementById('profile-origin').textContent = currentUser.origin || '--';
+            document.getElementById('profile-register-time').textContent = currentUser.registerTime || '--';
+            document.getElementById('profile-meal-count').textContent = currentUser.mealCount || 0;
+
+            const tastesContainer = document.getElementById('profile-tastes');
+            tastesContainer.innerHTML = '';
+            if (currentUser.tastes && currentUser.tastes.length > 0) {
+                currentUser.tastes.forEach(taste => {
+                    const tag = document.createElement('span');
+                    tag.className = 'preference-tag';
+                    tag.textContent = taste;
+                    tastesContainer.appendChild(tag);
+                });
+            }
+
+            const foodTypesContainer = document.getElementById('profile-food-types');
+            foodTypesContainer.innerHTML = '';
+            if (currentUser.foodTypes && currentUser.foodTypes.length > 0) {
+                currentUser.foodTypes.forEach(type => {
+                    const tag = document.createElement('span');
+                    tag.className = 'preference-tag category';
+                    tag.textContent = type;
+                    foodTypesContainer.appendChild(tag);
+                });
+            }
+
+            const avatar = document.getElementById('profile-avatar');
+            avatar.textContent = currentUser.name.charAt(0);
+        }
+
+        function editPreferences() {
+            if (!currentUser) return;
+
+            selectedDorm = currentUser.dorm || '';
+            selectedOrigin = currentUser.origin || '';
+            selectedTastes = currentUser.tastes || [];
+            selectedFoodTypes = currentUser.foodTypes || [];
+
+            resetOptionSelection('dorm-options', selectedDorm, false);
+            resetOptionSelection('origin-options', selectedOrigin, false);
+            resetOptionSelection('taste-options', selectedTastes, true);
+            resetOptionSelection('food-type-options', selectedFoodTypes, true);
+
+            showPreferences();
+        }
+
+        function resetOptionSelection(containerId, selectedValues, isMultiSelect) {
+            const container = document.getElementById(containerId);
+            const items = container.querySelectorAll('.option-item');
+            
+            items.forEach(item => {
+                item.classList.remove('selected');
+                if (isMultiSelect) {
+                    if (selectedValues.includes(item.dataset.value)) {
+                        item.classList.add('selected');
+                    }
+                } else {
+                    if (item.dataset.value === selectedValues) {
+                        item.classList.add('selected');
+                    }
+                }
+            });
+        }
+
+        function updateCrowdLevels() {
+            canteens.forEach(canteen => {
+                const change = (Math.random() - 0.5) * 15;
+                canteen.crowd = Math.max(10, Math.min(95, canteen.crowd + change));
+            });
+            renderCanteens();
+            renderMap();
+        }
+
+        setInterval(updateCrowdLevels, 30000);
+
+        window.onload = function() {
+            const savedUser = localStorage.getItem('currentUser');
+            if (savedUser) {
+                const parsed = JSON.parse(savedUser);
+                const fullUser = localStorage.getItem(`user_${parsed.studentId}_${parsed.phone}`);
+                if (fullUser) {
+                    currentUser = JSON.parse(fullUser);
+                    showMain();
+                }
+            }
+        };
+    </script>
+</body>
+</html>
